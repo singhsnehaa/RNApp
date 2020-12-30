@@ -11,7 +11,8 @@ import GetOrders from '../screens/GetOrders';
 import NewScreen from '../screens/NewScreen';
 import History from '../screens/History';
 
-import githubUserForm from '../screens/githubUserForm';
+import GithubUserInput from '../screens/GithubUserInput';
+import GithubDetail from '../screens/GithubDetail';
 
 const Stack = createStackNavigator();
 
@@ -26,7 +27,8 @@ function AppRouter() {
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Lateral" component={Lateral} />
 
-          <Stack.Screen name="githubUserForm" component={githubUserForm} />
+          <Stack.Screen name="GithubUserInput" component={GithubUserInput} />
+          <Stack.Screen name="GithubDetail" component={GithubDetail} />
         </Stack.Navigator>
       </NavigationContainer>
     );
