@@ -52,7 +52,7 @@ class Login extends React.Component {
     getLogin()
       .then(user => {
         if (user !== null) {
-          this.props.navigation.replace('githubUserForm');
+          this.props.navigation.replace('GithubUserInput');
           //this.props.navigation.replace('Lateral');
         } else {
           this.setState({refreshing: false});

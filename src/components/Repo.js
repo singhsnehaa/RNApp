@@ -9,20 +9,20 @@ export default class Repo extends React.Component {
     render(){
         return(
           <View style={styles.repo}>
-            <Text style={{fontWeight: 'bold', fontSize: 16}}>Repo Name</Text>
-            <Text>Some descripotion about this repo goes here.</Text>
+            <Text style={{fontWeight: 'bold', fontSize: 16}}>{this.props.name}</Text>
+            <Text>{this.props.description ? this.props.description : 'Description not Available'}</Text>
             <View style={{marginTop: 5}}>
               <View style={{flexDirection:'row', alignItems: 'center'}}>
                 <Text style={{color: '#555'}}>Created :{' '}</Text>
-                <Text>12/12/2020</Text>
+                <Text>{this.props.created_at}</Text>
               </View>
               <View style={{flexDirection:'row', alignItems: 'center'}}>
                 <Text style={{color: '#555'}}>Language :{' '}</Text>
-                <Text>HTML</Text>
+                <Text>{this.props.language}</Text>
               </View>
               <View style={{flexDirection:'row', alignItems: 'center'}}>
                 <Text style={{color: '#555'}}>Fork :{' '}</Text>
-                <Text>8</Text>
+                <Text>{this.props.forks}</Text>
               </View>
             </View>
           </View>

@@ -17,34 +17,87 @@ const {width:SCREEN_WIDTH, height:SCREEN_HEIGHT} = Dimensions.get('window');
 
 class GithubDetail extends React.Component {
   state = {
-    repos: [
-      {
-        id: 1,
-        name: 'Carmatec',
-        description: 'Some description about this project goes here.',
-        language: 'CSS',
-        forks_count: 4,
-        created_at: '12/12/2020'
-      },
-      {
-        id: 2,
-        name: 'Somethign else',
-        description: 'Some description about this project goes here.',
-        language: 'HTML',
-        forks_count: 4,
-        created_at: '12/12/2020'
-      },
-      {
-        id: 3,
-        name: 'Project 3',
-        description: 'Some description about this project goes here.',
-        language: 'HTML',
-        forks_count: 4,
-        created_at: '12/12/2020'
-      }
-    ]
+    // repos: [
+    //   {
+    //     id: 1,
+    //     name: 'Carmatec',
+    //     description: 'Some description about this project goes here.',
+    //     language: 'CSS',
+    //     forks_count: 4,
+    //     created_at: '12/12/2020'
+    //   },
+    //   {
+    //     id: 2,
+    //     name: 'Somethign else',
+    //     description: 'Some description about this project goes here.',
+    //     language: 'HTML',
+    //     forks_count: 4,
+    //     created_at: '12/12/2020'
+    //   },
+    //   {
+    //     id: 3,
+    //     name: 'Project 3',
+    //     description: 'Some description about this project goes here.',
+    //     language: 'HTML',
+    //     forks_count: 4,
+    //     created_at: '12/12/2020'
+    //   }
+    // ],
+    user: {},
+    repos:[],
+
   }
+
+  componentDidMount = () => {
+    const {username} = this.props.route.params;
+    this.loaduserDetails(username);
+    this.loadUserRepos(username);
+  }
+
+  loaduserDetails = (username) => {
+    try {
+      const url = `https://api.github.com/users/${username}`;
+      //console.log('url====', url);
+      fetch(url).then((res) => res.json())
+          .then(async (resp) => {
+            // console.log('resp data====', resp);
+            if(resp){
+              this.setState({user: resp});
+          } else {
+              Toast.show({
+                text: 'User Details not available',
+                duration:3000
+              })
+          }
+          });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  loadUserRepos = (username) => {
+    try {
+      const url = `https://api.github.com/users/${username}/repos`;
+      //console.log('Repos url====', url);
+      fetch(url).then((res) => res.json())
+          .then(async (resp) => {
+            //console.log('repo data====', resp);
+            if(resp){
+              this.setState({repos: resp});
+          } else {
+              Toast.show({
+                text: 'User Details not available',
+                duration:3000
+              })
+          }
+          });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   render() {
+    const {user, repos} = this.state;
     return (
       <Container>
         <Header noLeft>
@@ -59,37 +112,37 @@ class GithubDetail extends React.Component {
                 width={150}
                 height={200}
                 resizeMode="cover"
-                source={{uri: 'https://avatars3.githubusercontent.com/u/20426698'}}
-                fallbackSource={require('../assets/dummy.png')}
+                source={{uri: user.avatar_url}}
+                fallbackSource={{uri:'https://placeimg.com/640/480/people'}}
               />
               <View style={styles.userInfo}>
-                <H3>Arup Gorai</H3>
-                <Text style={{fontSize: 14, color: '#555'}}>Frontend Developer</Text>
+                <H3>{user.name}</H3>
+                <Text style={{fontSize: 14, color: '#555'}}>{user.bio ? user.bio: '-'}</Text>
                 <View style={{flexDirection: 'row', alignItems: 'center', marginVertical: 10}}>
                   <View style={styles.follow}>
                     <Text style={{fontSize: 14}}>Following{' '}</Text>
-                    <Text style={{fontSize: 14, fontWeight: 'bold'}}>12</Text>
+                    <Text style={{fontSize: 14, fontWeight: 'bold'}}>{user.following}</Text>
                   </View>
                   <View style={{...styles.follow, marginLeft: 5}}>
                     <Text style={{fontSize: 14}}>Followers</Text>
-                    <Text style={{fontSize: 14, fontWeight: 'bold'}}>13</Text>
+                    <Text style={{fontSize: 14, fontWeight: 'bold'}}>{user.followers}</Text>
                   </View>
                 </View>
                 <View style={{flexDirection:'row', alignItems: 'center'}}>
                   <Text style={{color: '#555'}}>Location :{' '}</Text>
-                  <Text>Ranchi</Text>
+                  <Text>{user.location ? user.location: '-'}</Text>
                 </View>
                 <View style={{flexDirection:'row', alignItems: 'center'}}>
                   <Text style={{color: '#555'}}>Company :{' '}</Text>
-                  <Text>Origin IT</Text>
+                  <Text>{user.company ? user.company: '-'}</Text>
                 </View>
                 <View style={{flexDirection:'row', alignItems: 'center'}}>
                   <Text style={{color: '#555'}}>Joined :{' '}</Text>
-                  <Text>12/12/2020</Text>
+                  <Text>{user.created_at}</Text>
                 </View>
                 <View style={{flexDirection:'row', alignItems: 'center'}}>
-                  <Text style={{color: '#555'}}>Public Repos :{' '}</Text>
-                  <Text>14</Text>
+                  <Text style={{color: '#555'}}>Public user :{' '}</Text>
+                  <Text>{user.public_repos}</Text>
                 </View>
               </View>
             </View>
@@ -99,7 +152,7 @@ class GithubDetail extends React.Component {
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
-              data={this.state.repos}
+              data={repos}
               renderItem={({ item }) => <Repo {...item} />}
               keyExtractor={item => item.name}
             />
