@@ -12,39 +12,18 @@ import {
 import AutoHeightImage from 'react-native-auto-height-image';
 import {Container, Header, Left, Title, Icon, Body, Right, Label, Content, Form, Item, Input, H3, Button, Toast} from 'native-base';
 import { setLogin, getLogin } from '../config/Auth';
+import Moment from 'react-moment';
 import Repo from '../components/Repo';
 const {width:SCREEN_WIDTH, height:SCREEN_HEIGHT} = Dimensions.get('window');
 
 class GithubDetail extends React.Component {
   state = {
-    // repos: [
-    //   {
-    //     id: 1,
-    //     name: 'Carmatec',
-    //     description: 'Some description about this project goes here.',
-    //     language: 'CSS',
-    //     forks_count: 4,
-    //     created_at: '12/12/2020'
-    //   },
-    //   {
-    //     id: 2,
-    //     name: 'Somethign else',
-    //     description: 'Some description about this project goes here.',
-    //     language: 'HTML',
-    //     forks_count: 4,
-    //     created_at: '12/12/2020'
-    //   },
-    //   {
-    //     id: 3,
-    //     name: 'Project 3',
-    //     description: 'Some description about this project goes here.',
-    //     language: 'HTML',
-    //     forks_count: 4,
-    //     created_at: '12/12/2020'
-    //   }
-    // ],
+    isLoadingUserDetail: true,
+    isLoadingRepo: true,
+    isLoaingCommits: true,
     user: {},
     repos:[],
+    commits: []
 
   }
 
@@ -62,7 +41,7 @@ class GithubDetail extends React.Component {
           .then(async (resp) => {
             // console.log('resp data====', resp);
             if(resp){
-              this.setState({user: resp});
+              this.setState({user: resp, isLoadingUserDetail: false});
           } else {
               Toast.show({
                 text: 'User Details not available',
@@ -83,7 +62,8 @@ class GithubDetail extends React.Component {
           .then(async (resp) => {
             //console.log('repo data====', resp);
             if(resp){
-              this.setState({repos: resp});
+              this.setState({repos: resp, isLoadingRepo: false});
+              this.getCommits(resp);
           } else {
               Toast.show({
                 text: 'User Details not available',
@@ -96,81 +76,131 @@ class GithubDetail extends React.Component {
     }
   }
 
+  getCommits = async repos => {
+    let tempCommits = [];
+    const repo = repos[0];
+
+    const jsonResp = await fetch(`https://api.github.com/repos/arupgorai/${repo.name}/commits`);
+    const data = await jsonResp.json();
+    if (Array.isArray(data)) {
+      // console.group("data =>", data);
+      data && data.map(item => {
+        tempCommits.push({
+          message: item.commit.message,
+          sha: item.sha
+        })
+        // console.log("item:- ", item.commit.message);
+      });
+      this.setState({commits: tempCommits, isLoaingCommits: false});
+    }
+    
+  }
+
+
   render() {
-    const {user, repos} = this.state;
+    const {user, repos, commits,isLoadingUserDetail, isLoadingRepo,isLoaingCommits} = this.state;
+    const joined = new Date(user.created_at);
     return (
       <Container>
-        <Header noLeft>
+        <Header>
+            <Left>
+              <Button transparent>
+                  <Icon name='chevron-left' type='FontAwesome5' style={{color:'green', fontSize:20}}></Icon>
+              </Button>
+          </Left>
           <Body>
             <Title>Github Detail</Title>
           </Body>
         </Header>
         <Content>
           <View style={styles.container}>
-            <View style={styles.userDetail}>
-              <AutoHeightImage
-                width={150}
-                height={200}
-                resizeMode="cover"
-                source={{uri: user.avatar_url}}
-                fallbackSource={{uri:'https://placeimg.com/640/480/people'}}
-              />
-              <View style={styles.userInfo}>
-                <H3>{user.name}</H3>
-                <Text style={{fontSize: 14, color: '#555'}}>{user.bio ? user.bio: '-'}</Text>
-                <View style={{flexDirection: 'row', alignItems: 'center', marginVertical: 10}}>
-                  <View style={styles.follow}>
-                    <Text style={{fontSize: 14}}>Following{' '}</Text>
-                    <Text style={{fontSize: 14, fontWeight: 'bold'}}>{user.following}</Text>
+            {isLoadingUserDetail && (
+              <ActivityIndicator color='blue' />
+            )}
+            {!isLoadingUserDetail && user && (
+              <View style={styles.userDetail}>
+                <AutoHeightImage
+                  width={150}
+                  height={200}
+                  resizeMode="cover"
+                  source={{uri: user.avatar_url}}
+                  fallbackSource={{uri:'https://placeimg.com/640/480/people'}}
+                />
+                <View style={styles.userInfo}>
+                  <H3>{user.name}</H3>
+                  <Text style={{fontSize: 14, color: '#555'}}>{user.bio ? user.bio: '-'}</Text>
+                  <View style={{flexDirection: 'row', alignItems: 'center', marginVertical: 10}}>
+                    <View style={styles.follow}>
+                      <Text style={{fontSize: 14}}>Following{' '}</Text>
+                      <Text style={{fontSize: 14, fontWeight: 'bold'}}>{user.following}</Text>
+                    </View>
+                    <View style={{...styles.follow, marginLeft: 5}}>
+                      <Text style={{fontSize: 14}}>Followers</Text>
+                      <Text style={{fontSize: 14, fontWeight: 'bold'}}>{user.followers}</Text>
+                    </View>
                   </View>
-                  <View style={{...styles.follow, marginLeft: 5}}>
-                    <Text style={{fontSize: 14}}>Followers</Text>
-                    <Text style={{fontSize: 14, fontWeight: 'bold'}}>{user.followers}</Text>
+                  <View style={{flexDirection:'row', alignItems: 'center'}}>
+                    <Text style={{color: '#555'}}>Location :{' '}</Text>
+                    <Text>{user.location ? user.location: '-'}</Text>
                   </View>
-                </View>
-                <View style={{flexDirection:'row', alignItems: 'center'}}>
-                  <Text style={{color: '#555'}}>Location :{' '}</Text>
-                  <Text>{user.location ? user.location: '-'}</Text>
-                </View>
-                <View style={{flexDirection:'row', alignItems: 'center'}}>
-                  <Text style={{color: '#555'}}>Company :{' '}</Text>
-                  <Text>{user.company ? user.company: '-'}</Text>
-                </View>
-                <View style={{flexDirection:'row', alignItems: 'center'}}>
-                  <Text style={{color: '#555'}}>Joined :{' '}</Text>
-                  <Text>{user.created_at}</Text>
-                </View>
-                <View style={{flexDirection:'row', alignItems: 'center'}}>
-                  <Text style={{color: '#555'}}>Public user :{' '}</Text>
-                  <Text>{user.public_repos}</Text>
+                  <View style={{flexDirection:'row', alignItems: 'center'}}>
+                    <Text style={{color: '#555'}}>Company :{' '}</Text>
+                    <Text>{user.company ? user.company: '-'}</Text>
+                  </View>
+                  <View style={{flexDirection:'row', alignItems: 'center'}}>
+                    <Text style={{color: '#555'}}>Joined :{' '}</Text>
+                    <Moment format="YYYY-MM-DD" date={joined} />
+                  </View>
+                  <View style={{flexDirection:'row', alignItems: 'center'}}>
+                    <Text style={{color: '#555'}}>Public user :{' '}</Text>
+                    <Text>{user.public_repos}</Text>
+                  </View>
                 </View>
               </View>
-            </View>
+            )}
+            
           </View>
+          
           <View style={styles.repoWrapper}>
             <Text style={{fontSize: 16, fontWeight: 'bold', color: '#444', marginBottom: 15}}>Public Repositories</Text>
-            <FlatList
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              data={repos}
-              renderItem={({ item }) => <Repo {...item} />}
-              keyExtractor={item => item.name}
-            />
+            {isLoadingRepo && (
+              <ActivityIndicator color='blue' />
+            )}
+
+            {!isLoadingRepo && repos && (
+               <FlatList
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                data={repos}
+                renderItem={({ item }) => <Repo {...item} />}
+                keyExtractor={item => item.name}
+              />
+            )}
           </View>
+
           <View style={styles.commitWrapper}>
             <Text style={{fontSize: 16, fontWeight: 'bold', color: '#444', marginBottom: 15}}>Commit History</Text>
-            <View style={styles.commit}>
-              <Text>Merge pull request #1 from lateral Lateral created project</Text>
-            </View>
-            <View style={styles.commit}>
-              <Text>Commit msg Merge pull request #1 from lateral</Text>
-            </View>
-            <View style={styles.commit}>
-              <Text>Merge pull request #1 from lateral</Text>
-            </View>
-            <View style={styles.commit}>
-              <Text>Commit msg</Text>
-            </View>
+            
+            {isLoaingCommits && (
+              <ActivityIndicator color='blue' />
+            )}
+
+            {!isLoaingCommits && commits && (
+              <FlatList
+                data={commits}
+                renderItem={({ item }) => {
+                  // console.log(obj) // {item: {}, index: 1}
+                  return(
+                    <View style={styles.commit}>
+                      <Text>{item.message}</Text>
+                    </View>
+                  )
+                }}
+                keyExtractor={item => item.sha}
+              />
+            )}   
+            
+            
           </View>
         </Content>
       </Container>
