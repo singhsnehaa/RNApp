@@ -2,11 +2,13 @@ import React from 'react'
 import {View, Text,StyleSheet,Dimensions,ImageBackground} from 'react-native'
 import {Icon,H3,} from 'native-base'
 import AutoHeightImage from 'react-native-auto-height-image'
+import moment from 'moment';
 import {Theme} from '../theme/AppTheme'
 
 
 export default class Repo extends React.Component {
     render(){
+      const created = moment(this.props.created_at).format('DD/MM/YYYY');
         return(
           <View style={styles.repo}>
             <Text style={{fontWeight: 'bold', fontSize: 16}}>{this.props.name}</Text>
@@ -14,7 +16,7 @@ export default class Repo extends React.Component {
             <View style={{marginTop: 5}}>
               <View style={{flexDirection:'row', alignItems: 'center'}}>
                 <Text style={{color: '#555'}}>Created :{' '}</Text>
-                <Text>{this.props.created_at}</Text>
+                <Text>{created}</Text>
               </View>
               <View style={{flexDirection:'row', alignItems: 'center'}}>
                 <Text style={{color: '#555'}}>Language :{' '}</Text>

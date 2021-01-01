@@ -13,6 +13,7 @@ import AutoHeightImage from 'react-native-auto-height-image';
 import {Container, Header, Left, Title, Icon, Body, Right, Label, Content, Form, Item, Input, H3, Button, Toast} from 'native-base';
 import { setLogin, getLogin } from '../config/Auth';
 import Moment from 'react-moment';
+import moment from 'moment';
 import Repo from '../components/Repo';
 const {width:SCREEN_WIDTH, height:SCREEN_HEIGHT} = Dimensions.get('window');
 
@@ -99,13 +100,13 @@ class GithubDetail extends React.Component {
 
   render() {
     const {user, repos, commits,isLoadingUserDetail, isLoadingRepo,isLoaingCommits} = this.state;
-    const joined = new Date(user.created_at);
+    const joined = moment(user.created_at).format('DD/MM/YYYY');
     return (
       <Container>
         <Header>
             <Left>
-              <Button transparent>
-                  <Icon name='chevron-left' type='FontAwesome5' style={{color:'green', fontSize:20}}></Icon>
+              <Button transparent onPress={() => this.props.navigation.goBack()}>
+                  <Icon name='chevron-left' type='FontAwesome5' style={{color:'#fff', fontSize:20}}></Icon>
               </Button>
           </Left>
           <Body>
@@ -149,7 +150,7 @@ class GithubDetail extends React.Component {
                   </View>
                   <View style={{flexDirection:'row', alignItems: 'center'}}>
                     <Text style={{color: '#555'}}>Joined :{' '}</Text>
-                    <Moment format="YYYY-MM-DD" date={joined} />
+                     <Text>{joined}</Text>
                   </View>
                   <View style={{flexDirection:'row', alignItems: 'center'}}>
                     <Text style={{color: '#555'}}>Public user :{' '}</Text>
