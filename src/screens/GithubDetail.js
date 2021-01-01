@@ -80,8 +80,11 @@ class GithubDetail extends React.Component {
   getCommits = async repos => {
     let tempCommits = [];
     const repo = repos[0];
+    const {username} = this.props.route.params;
+    //console.log("repo:---", `https://api.github.com/repos/${username}/${repo.name}/commits`);
 
-    const jsonResp = await fetch(`https://api.github.com/repos/arupgorai/${repo.name}/commits`);
+
+    const jsonResp = await fetch(`https://api.github.com/repos/${username}/${repo.name}/commits`);
     const data = await jsonResp.json();
     if (Array.isArray(data)) {
       // console.group("data =>", data);
@@ -112,6 +115,7 @@ class GithubDetail extends React.Component {
           <Body>
             <Title>Github Detail</Title>
           </Body>
+          <Right></Right>
         </Header>
         <Content>
           <View style={styles.container}>
@@ -136,7 +140,7 @@ class GithubDetail extends React.Component {
                       <Text style={{fontSize: 14, fontWeight: 'bold'}}>{user.following}</Text>
                     </View>
                     <View style={{...styles.follow, marginLeft: 5}}>
-                      <Text style={{fontSize: 14}}>Followers</Text>
+                      <Text style={{fontSize: 14}}>Followers </Text>
                       <Text style={{fontSize: 14, fontWeight: 'bold'}}>{user.followers}</Text>
                     </View>
                   </View>
@@ -153,7 +157,7 @@ class GithubDetail extends React.Component {
                      <Text>{joined}</Text>
                   </View>
                   <View style={{flexDirection:'row', alignItems: 'center'}}>
-                    <Text style={{color: '#555'}}>Public user :{' '}</Text>
+                    <Text style={{color: '#555'}}>Public Repo :{' '}</Text>
                     <Text>{user.public_repos}</Text>
                   </View>
                 </View>
@@ -181,12 +185,17 @@ class GithubDetail extends React.Component {
 
           <View style={styles.commitWrapper}>
             <Text style={{fontSize: 16, fontWeight: 'bold', color: '#444', marginBottom: 15}}>Commit History</Text>
-            
-            {isLoaingCommits && (
+            {isLoaingCommits &&(
               <ActivityIndicator color='blue' />
             )}
 
-            {!isLoaingCommits && commits && (
+            {!isLoaingCommits && commits.length == 0 && (
+              <View>
+                <Text>No commits available yet</Text>
+              </View>
+            )}
+
+            {!isLoaingCommits && commits.length > 0 && (
               <FlatList
                 data={commits}
                 renderItem={({ item }) => {
@@ -200,6 +209,8 @@ class GithubDetail extends React.Component {
                 keyExtractor={item => item.sha}
               />
             )}   
+
+           
             
             
           </View>
