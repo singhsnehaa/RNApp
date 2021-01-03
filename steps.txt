@@ -1,0 +1,10 @@
+Redux implimentation step
+plugin - redux, react-redux, redux-thunk, axios, redux-devtools-extension
+
+steps:-
+
+*. setup store
+1. constant
+2. action
+3. reducer
+

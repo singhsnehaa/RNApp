@@ -14,6 +14,8 @@ import {Container, Header, Left, Title, Icon, Body, Right, Label, Content, Form,
 import { setLogin, getLogin } from '../config/Auth';
 import Moment from 'react-moment';
 import moment from 'moment';
+import {connect} from 'react-redux';
+import {userInfo, getUserRepo} from '../action/githubDetail';
 import Repo from '../components/Repo';
 const {width:SCREEN_WIDTH, height:SCREEN_HEIGHT} = Dimensions.get('window');
 
@@ -32,6 +34,8 @@ class GithubDetail extends React.Component {
     const {username} = this.props.route.params;
     this.loaduserDetails(username);
     this.loadUserRepos(username);
+    this.props.userInfo(username);
+    this.props.getUserRepo(username);
   }
 
   loaduserDetails = (username) => {
@@ -102,6 +106,9 @@ class GithubDetail extends React.Component {
 
 
   render() {
+    const {github} = this.props;
+
+    console.log("github data [render] =>", github);
     const {user, repos, commits,isLoadingUserDetail, isLoadingRepo,isLoaingCommits} = this.state;
     const joined = moment(user.created_at).format('DD/MM/YYYY');
     return (
@@ -269,4 +276,9 @@ const styles = StyleSheet.create({
   }
 });
 
-export default GithubDetail;
+
+const mapStateToProps = state => ({
+  github: state.github
+})
+
+export default connect(mapStateToProps, {userInfo, getUserRepo})(GithubDetail);
