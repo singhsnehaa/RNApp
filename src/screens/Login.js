@@ -8,6 +8,12 @@ import {
 } from 'react-native';
 import {Container, Label, Content, Form, Item, Input, Icon, H2, Button, Toast} from 'native-base';
 import { setLogin, getLogin } from '../config/Auth';
+
+
+import {connect} from 'react-redux';
+import { userLogin } from '../action/AuthLogin';
+// import {  } from "../action/AuthLogin";
+
 const {width:SCREEN_WIDTH, height:SCREEN_HEIGHT} = Dimensions.get('window');
 
 class Login extends React.Component {
@@ -32,10 +38,12 @@ class Login extends React.Component {
     } else {
       const user = {email, password}
       if (email == 'test@test.com' && password == 'password') {
+        //console.log('login success');
+        this.props.userLogin(email,password);
+         //this.props.navigation.replace('UserDashboard');
         setLogin(user)
           .then(() => {
-            // this.props.navigation.navigate('Lateral');
-            this.props.navigation.replace('GithubUserInput');
+            this.props.navigation.replace('UserDashboard');
             this.setState({loading: false});
           })
           .catch(er => er && console.log(er))
@@ -53,8 +61,8 @@ class Login extends React.Component {
     getLogin()
       .then(user => {
         if (user !== null) {
-          this.props.navigation.replace('GithubUserInput');
-          //this.props.navigation.replace('Lateral');
+          //this.props.navigation.replace('GithubUserInput');
+          this.props.navigation.replace('UserDashboard');
         } else {
           this.setState({refreshing: false});
         }
@@ -138,4 +146,9 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Login;
+
+const mapStateToProps = state => ({
+  auth: state.authLogin
+})
+
+export default connect(mapStateToProps, {userLogin})(Login);

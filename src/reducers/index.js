@@ -1,6 +1,8 @@
 import {combineReducers} from 'redux';
-import authLogin from "./AuthLogin";
+import authLogin from "./authLogin";
+import userList from "./UserList";
 
 export default combineReducers({
-    authLogin
+    authLogin,
+    userList
 });
