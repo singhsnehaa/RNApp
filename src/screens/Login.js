@@ -37,13 +37,13 @@ class Login extends React.Component {
       this.setState({ error: err, loading: false });
     } else {
       const user = {email, password}
-      if (email == 'test@test.com' && password == 'password') {
+      if (email == 'hruday@gmail.com' && password == 'hruday123') {
         //console.log('login success');
         this.props.userLogin(email,password);
          //this.props.navigation.replace('UserDashboard');
         setLogin(user)
           .then(() => {
-            this.props.navigation.replace('UserDashboard');
+            this.props.navigation.navigate('UserDashboard');
             this.setState({loading: false});
           })
           .catch(er => er && console.log(er))
@@ -62,7 +62,7 @@ class Login extends React.Component {
       .then(user => {
         if (user !== null) {
           //this.props.navigation.replace('GithubUserInput');
-          this.props.navigation.replace('UserDashboard');
+          this.props.navigation.navigate('UserDashboard');
         } else {
           this.setState({refreshing: false});
         }

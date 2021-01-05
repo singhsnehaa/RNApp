@@ -4,10 +4,12 @@ import {
   StyleSheet,
   View,
   Dimensions,
+  ScrollView,
+  SafeAreaView,
   FlatList,
   ActivityIndicator
 } from 'react-native';
-import {Container, Content, List, ListItem, Left, Body, Right, Thumbnail, Icon, H2, Button, Toast} from 'native-base';
+import {Container, Content, List, Header,Title,ListItem, Left, Body, Right, Thumbnail, Icon, H2, Button, Toast} from 'native-base';
 import { setLogin, getLogin } from '../config/Auth';
 
 
@@ -22,12 +24,24 @@ class UserDashboard extends React.Component {
   componentDidMount() {
     this.props.userList();
   }
-  
+
 
   render() {
     const {users, refreshing} = this.props;
     return (
       <Container>
+        <Header>
+            <Left>
+              <Button transparent onPress={() => this.props.navigation.goBack()}>
+                  <Icon name='chevron-left' type='FontAwesome5' style={{color:'#fff', fontSize:20}}></Icon>
+              </Button>
+          </Left>
+          <Body>
+            <Title>User List</Title>
+          </Body>
+          <Right></Right>
+        </Header>
+
         {refreshing && (
           <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <ActivityIndicator size="large" color="orange" />
@@ -51,15 +65,15 @@ class UserDashboard extends React.Component {
                                 <Text note style={{color:'gray'}}><Icon name='smartphone' type='Feather' style={{fontSize:14}}></Icon>{item.phoneNo}</Text>
                             </Body>
                             <Right>
-                                <Text note>{item.gender} [{item.age}]</Text>
+                                <Text note>Age: {item.age}</Text>
                             </Right>
                             </ListItem>
                         </List>
                     )
                   }}
-                keyExtractor={item => item.id}
+                  keyExtractor={item => item.id.toString()}
               />
-
+         
           </Content>
         )}
       </Container>
