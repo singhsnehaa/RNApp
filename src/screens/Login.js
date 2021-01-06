@@ -3,48 +3,62 @@ import {
   Text,
   StyleSheet,
   View,
+  TouchableOpacity,
   Dimensions,
   ActivityIndicator
 } from 'react-native';
 import {Container, Label, Content, Form, Item, Input, Icon, H2, Button, Toast} from 'native-base';
 import { setLogin, getLogin } from '../config/Auth';
+import {AppConfig} from '../config/AppConfig';
 const {width:SCREEN_WIDTH, height:SCREEN_HEIGHT} = Dimensions.get('window');
 
 class Login extends React.Component {
   state = {
     email: '',
     password: '',
+    mobile: '',
     loading: false,
     refreshing: true,
     error: null
   }
+
   submitHandler = () => {
-    let { email, password, loading } = this.state;
+    let { email, password, mobile,loading } = this.state;
     this.setState({loading: true});
 
     // trim usernaem & pass
     email = email.trim();
     password = password.trim();
 
-    const err = this.signInValidator(email, password);
+    const err = this.signInValidator(email, password,mobile);
     if (Object.keys(err).length > 0) {
       this.setState({ error: err, loading: false });
     } else {
-      const user = {email, password}
-      if (email == 'test@test.com' && password == 'password') {
-        setLogin(user)
-          .then(() => {
-            // this.props.navigation.nevigate('Signup');
-            this.setState({loading: false});
-          })
-          .catch(er => er && console.log(er))
-      } else {
-        Toast.show({
-          text: 'Invalid Email or Password',
-          duration: 3000
-        });
-        this.setState({loading: false});
-      }
+      let url = `${AppConfig.API}/?m=login&mobile=${mobile}&password=${password}`;
+
+      try {
+        fetch(url).then((res) => res.json())
+            .then(async (resp) => {
+            // console.log("server response =>",resp);
+            if (resp.status) {
+                await setLogin(resp.data);
+                Toast.show({
+                    text: resp.message,
+                    duration: 3000,
+                });
+                this.setState({loading: false});
+                this.props.navigation.navigate('Profile');
+            } else {
+              this.setState({loading: false});
+                Toast.show({
+                    text: resp.message,
+                    duration: 3000,
+                });
+            }
+            });
+        } catch (error) {
+        console.log(error);
+        }
     }
   }
 
@@ -52,7 +66,7 @@ class Login extends React.Component {
     getLogin()
       .then(user => {
         if (user !== null) {
-          // this.props.navigation.nevigate('Signup');
+          this.props.navigation.navigate('Profile');
         } else {
           this.setState({refreshing: false});
         }
@@ -61,7 +75,7 @@ class Login extends React.Component {
   }
 
   // validation for email & password
-  signInValidator(email, password) {
+  signInValidator(email, password,mobile) {
       // email validator pattern
       const pattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       const error = {};
@@ -72,6 +86,12 @@ class Login extends React.Component {
         error.email = 'Invalid Email Id';
       }
 
+      if (!mobile) {
+        error.mobile = 'Mobile number required';
+      } else if (mobile.length > 10 || mobile.length < 10) {
+        error.mobile = 'Invalid mobile number';
+      } 
+
       if (!password || password === '') {
         error.password = 'Please Provide Password';
       }
@@ -79,7 +99,7 @@ class Login extends React.Component {
   }
 
   render() {
-    const {email, password, error, loading, refreshing} = this.state;
+    const {email, password, error, mobile, loading, refreshing} = this.state;
     return (
       <Container>
         {refreshing && (
@@ -102,6 +122,17 @@ class Login extends React.Component {
                     />
                   </Item>
                   {error && error.email && <Text style={styles.error }>{error.email}</Text>}
+
+                  <Item fixedLabel>
+                    <Label>Mobile No</Label>
+                    <Input
+                      value={mobile}
+                      onChangeText={(mobile) => this.setState({mobile})}
+                    />
+                  </Item>
+
+                  {error && error.mobile && <Text style={styles.error }>{error.mobile}</Text>}
+                  
                   <Item fixedLabel>
                     <Label>Password</Label>
                     <Input
@@ -116,10 +147,12 @@ class Login extends React.Component {
                   </Button>
                 </Form>
               </View>
-              <View style={{marginTop: 25, flexDirection:'row', alignItems: 'center', justifyContent: 'center'}}>
-                <Text>NEED AN ACCOUNT ? </Text>
-                <Text style={{fontWeight: 'bold'}}>SIGN UP</Text>
-              </View>
+              <TouchableOpacity onPress = {() => this.props.navigation.navigate('Signup')}>
+                <View style={{marginTop: 25, flexDirection:'row', alignItems: 'center', justifyContent: 'center'}}>
+                  <Text>NEED AN ACCOUNT ? </Text>
+                  <Text style={{fontWeight: 'bold'}}>SIGN UP</Text>
+                </View>
+              </TouchableOpacity>
             </View>
           </Content>
         )}

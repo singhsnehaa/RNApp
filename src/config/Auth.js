@@ -13,6 +13,7 @@ export const getLogin = async () => {
     }
 };
 
+
 export const clearLogin = async () => {
     await AsyncStorage.clear();
 };
