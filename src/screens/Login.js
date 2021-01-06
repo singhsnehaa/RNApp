@@ -34,8 +34,7 @@ class Login extends React.Component {
       if (email == 'test@test.com' && password == 'password') {
         setLogin(user)
           .then(() => {
-            // this.props.navigation.navigate('Lateral');
-            this.props.navigation.replace('GithubUserInput');
+            // this.props.navigation.nevigate('Signup');
             this.setState({loading: false});
           })
           .catch(er => er && console.log(er))
@@ -53,8 +52,7 @@ class Login extends React.Component {
     getLogin()
       .then(user => {
         if (user !== null) {
-          this.props.navigation.replace('GithubUserInput');
-          //this.props.navigation.replace('Lateral');
+          // this.props.navigation.nevigate('Signup');
         } else {
           this.setState({refreshing: false});
         }
